@@ -1,5 +1,16 @@
-#Ya funciona para el primer cuadrante contemplando shud, falta debuggear
+#Creo que solo falta validar su espacio de trabajo, wow, solo falta eso.
 import numpy as np
+
+def calcFkinematics(a1f, a2f, a3f, a4f, T1f, T2f, T3f):
+
+    #Posiciones calculadas a mano
+    a1f4 = (-a4f*np.sin(T1f)*np.cos(T2f)*np.cos(T3f)+a4f*np.sin(T1f)*np.sin(T2f)*np.sin(T3f)+a2f*np.cos(T1f)-a3f*np.sin(T1f)*np.cos(T2f))
+    a2f4 = (a4f*np.cos(T1f)*np.cos(T2f)*np.cos(T3f)-a4f*np.cos(T1f)*np.sin(T2f)*np.sin(T3f)+a3f*np.cos(T1f)*np.cos(T2f)+a2f*np.sin(T1f))
+    a3f4 = (a4f*np.sin(T2f)*np.cos(T3f)+a4f*np.cos(T2f)*np.sin(T3f)+a3f*np.sin(T2f)+a1f)
+    print(a2f4)
+    print(a3f4)
+
+    return a1f4, a2f4, a3f4
 
 #Eslabones
 a1 = 1
@@ -7,11 +18,11 @@ a2 = 1
 a3 = 1
 a4 = 1
 
-#Coordenadas
-xf = 2.07106781e-01
-yf = 1.20710678e+00 #Se rompe arriba de 90°
-zf = 2.70710678e+00 #Se rompe arriba de 180°
-shud = 0 #Codo arriba, codo abajo, 0: codo abajo, 1: codo arriba
+#Coordenadas, no puede calcularlas bien cuando el efector final se posa sobre algun eje
+xf = -1
+yf = 7.07106781e-01
+zf = 2.70710678e+00  
+shud = 0       #Codo arriba, codo abajo, 0: codo abajo, 1: codo arriba
 
 #Comienza T1
 s = np.sqrt(xf**2+yf**2-a2**2+(zf-a2)**2)
@@ -27,7 +38,14 @@ if a2 != 0 and sxy != 0:
     phi2 = np.arctan(a2/sxy)
 elif sxy == 0:
     phi2 = np.arcsin(a2/h1)
-T1 = np.abs(np.radians(90) - phi1 - phi2) #Originalmente 90 - phi1 - phi2
+if xf >= 0 and yf >= 0:
+    T1 = np.abs(np.radians(90) - phi1 - phi2)
+elif  xf < 0 and yf >= 0:
+    T1 = np.abs(np.radians(90) + phi1 + phi2)
+elif xf < 0 and yf < 0:
+    T1 = np.abs(np.radians(90) + phi1 + phi2) 
+elif xf >= 0 and yf < 0:
+    T1 = np.radians(180) + np.abs(np.radians(90) + phi1 + phi2)
 
 #Comienza T2
 d1 = np.around((s**2+a3**2-a4**2)/(2*a3*s), decimals=5)
@@ -53,5 +71,4 @@ if shud == 0:
 elif shud == 1:
     T3 = (np.radians(180) - g3) * -1
 
-#Impresión de las coordenadas articulares obtenidas
 print(f"Para (x={xf}, y={yf}, z={zf}), T1={np.around(np.rad2deg(T1), decimals=2)}, T2={np.around(np.rad2deg(T2), decimals=2)}, T3={np.around(np.rad2deg(T3), decimals=2)}")
