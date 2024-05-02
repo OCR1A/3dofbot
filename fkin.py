@@ -9,10 +9,10 @@ a3 = 1
 a4 = 1
 
 #Ángulos en grados
-T1G = 45
-T2G = 45
-T3G = 45
-
+T1G = 0
+T2G = 0
+T3G = 0
+ 
 #Ángulos en radianes
 T1 = np.radians(T1G)
 T2 = np.radians(T2G)
@@ -106,4 +106,4 @@ T0_3C = np.array([
 print("Cinemática directa computada:")
 print(T0_3)
 print("Cinemática directa a mano:")
-print(T0_3C)
+print(np.round(T0_3, decimals = 2))

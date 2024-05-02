@@ -1,6 +1,102 @@
 #Creo que solo falta validar su espacio de trabajo, wow, solo falta eso.
 import numpy as np
 
+def calcJacobian(v, x0, y0, z0, x1, y1, z1, a1, a2, a3, a4):
+    vx = (v*(x1 - x0)/(np.sqrt((x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2)))
+    vy = (v*(y1 - y0)/(np.sqrt((x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2)))
+    vz = (v*(z1 - z0)/(np.sqrt((x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2)))
+
+    velocities = np.array([
+                            [vx],
+                            [vy],
+                            [vz]
+    ])
+
+    T1 = 0
+    T2 = 0
+    T3 = 0
+
+    T1 = np.radians(T1)
+    T2 = np.radians(T2)
+    T3 = np.radians(T3)
+
+    #Posiciones d0_3
+    a1_4 = -a4*np.sin(T1)*np.cos(T2)*np.cos(T3) + a4*np.sin(T1)*np.sin(T2)*np.sin(T3) + a2*np.cos(T1) - a3*np.sin(T1)*np.cos(T2)
+    a2_4 = a4*np.cos(T1)*np.cos(T2)*np.cos(T3) - a4*np.cos(T1)*np.sin(T2)*np.sin(T3) + a3*np.cos(T1)*np.cos(T2) + a2*np.sin(T1)
+    a3_4 = a4*np.sin(T2)*np.cos(T3) + a4*np.cos(T2)*np.sin(T3) + a3*np.sin(T2) + a1
+
+    #Posiciones d0_2
+    b1_4 = -a3*np.sin(T1)*np.cos(T2) + a2*np.cos(T1)
+    b2_4 = a3*np.cos(T1)*np.cos(T2) + a2*np.sin(T1)
+    b3_4 = a3*np.sin(T2) + a1
+
+    #Posiciones d0_1
+    c1_4 = a2*np.cos(T1)
+    c2_4 = a2*np.sin(T1)
+    c3_4 = a1
+
+    #Para e11
+    e1_1 = np.array([
+                        [-a2_4],
+                        [a1_4],
+                        [0]
+    ])
+
+    #Para e12
+
+    lam1_1 = a1_4 - c1_4
+    lam2_1 = a2_4 - c2_4
+    lam3_1 = a3_4 - c3_4
+
+    e1_2 = np.array([
+                        [lam3_1*np.sin(T1)],
+                        [-lam3_1*np.cos(T1)],
+                        [lam2_1*np.cos(T1) - lam1_1*np.sin(T1)]
+    ])
+
+    #Para e1_3
+    lam1_1_2 = a1_4 - b1_4
+    lam2_1_2 = a2_4 - b2_4
+    lam3_1_2 = a3_4 - b3_4
+
+    e1_3 = np.array([
+                        [lam3_1_2*np.sin(T1)],
+                        [-lam3_1_2*np.cos(T1)],
+                        [lam2_1_2*np.cos(T1) - lam1_1_2*np.sin(T1)]
+    ])
+
+    vect1 = np.array([
+                        [0],
+                        [0],
+                        [1]
+    ])
+
+    vect2 = np.array([
+                        [np.cos(T1)],
+                        [np.sin(T1)],
+                        [0]
+    ])
+
+    J = np.hstack([e1_1, e1_2, e1_3, vect1, vect2, vect2])
+    J = np.array([
+                    [J[0][0], J[0][1], J[0][2]],
+                    [J[1][0], J[1][1], J[1][2]],
+                    [J[2][0], J[2][1], J[2][2]]
+    ])
+
+    print("Jacobiana: ")
+    print(J)
+
+    J_pinv = np.linalg.pinv(J)
+    print("Pseudoinversa de la Jacobiana:")
+    print(J_pinv)
+
+    angularv = np.dot(J_pinv, velocities)
+
+    print(angularv)
+
+    return angularv[0][0], angularv[1][0], angularv[2][0]
+
 def calcFkinematics(a1f, a2f, a3f, a4f, T1f, T2f, T3f):
 
     #Posiciones calculadas a mano
@@ -19,10 +115,15 @@ a3 = 1
 a4 = 1
 
 #Coordenadas, no puede calcularlas bien cuando el efector final se posa sobre algun eje
-xf = -1
-yf = 7.07106781e-01
-zf = 2.70710678e+00  
-shud = 0       #Codo arriba, codo abajo, 0: codo abajo, 1: codo arriba
+#Revisar cinemática cuando T3G debería ser mayor a 90
+#Revisar cuando xf = 1, yf = 1, zf = 2 y shud = 1
+#xf = 1, yf = 1, zf = 2 funciona solo cuando shud = 0   
+#Revisar cuando xf = 2, yf = 1, zf = 1, debería ser th1 = 90, th2 = 180, th3 = 0
+#Revisar cuando TH2 = 90 grados
+xf = 0.034904812874567016
+yf = 1
+zf = 2.9996953903127825
+shud = 0      #Codo arriba, codo abajo, 0: codo abajo, 1: codo arriba
 
 #Comienza T1
 s = np.sqrt(xf**2+yf**2-a2**2+(zf-a2)**2)
@@ -72,3 +173,8 @@ elif shud == 1:
     T3 = (np.radians(180) - g3) * -1
 
 print(f"Para (x={xf}, y={yf}, z={zf}), T1={np.around(np.rad2deg(T1), decimals=2)}, T2={np.around(np.rad2deg(T2), decimals=2)}, T3={np.around(np.rad2deg(T3), decimals=2)}")
+
+#wx, wy, wz = calcJacobian(1, 1, 2, 1, 1, 1, 2)
+#print(wx)
+#print(wy)
+#print(wz)

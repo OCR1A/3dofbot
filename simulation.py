@@ -2,15 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Eslabones
-a1 = 1
-a2 = 1
-a3 = 1
-a4 = 1
+a1 = 133.2
+a2 = 69
+a3 = 285.25
+a4 = 100
 
 #Ángulos en grados
-T1G = 45
-T2G = 45
-T3G = 45
+T1G = 0
+T2G = 0
+T3G = 0
 
 #Ángulos en radianes
 T1 = np.radians(T1G)
@@ -116,13 +116,16 @@ ax.plot(x_link2, y_link2, z_link2, marker='o', color='g')
 ax.plot(x_link3, y_link3, z_link3, marker='o', color='b')
 
 #Establecer límites para los ejes x, y, y z
-ax.set_xlim([-1, 2])
-ax.set_ylim([-1, 2])
-ax.set_zlim([-1, 2])
+ax.set_xlim([-400, 400])
+ax.set_ylim([-400, 400])
+ax.set_zlim([0, 400])
 
 #Etiquetas de los ejes
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
+
+EFT = np.arctan2(T0_3[1][3], T0_3[0][3])
+print(f"EFT: {np.rad2deg(EFT)}")
 
 plt.show()
