@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep
+import serial
+import sys
 
 #Calcula la cinemática directa
 def calcFKinematics(T1, T2, T3, a1, a2, a3, a4, a5):
@@ -355,8 +357,8 @@ a5r = 100
 
 #Ángulos en grados
 T1Gr = 0
-T2Gr = 87
-T3Gr = 64
+T2Gr = 0
+T3Gr = 0
 
 #Ángulos en radianes
 T1r = np.radians(T1Gr)
@@ -365,7 +367,7 @@ T3r = np.radians(T3Gr)
 
 #Simulación de la cinemática directa
 x, y, z, H1r, H2r, H3r, H4r, H5r = calcFKinematics(T1r, T2r, T3r, a1r, a2r, a3r, a4r, a5r)
-simulate(H1r, H2r, H3r, H4r, H5r, "Forward kinematics simulation")
+#simulate(H1r, H2r, H3r, H4r, H5r, "Forward kinematics simulation")
 print("Coordenadas calculadas por la cinemática directa: ")
 print(f"xf: {x}")
 print(f"yf: {y}")
@@ -373,4 +375,17 @@ print(f"zf: {z}")
 
 #Comprobación de la cinemática inversa
 T1i, T2i, T3i, xi, yi, zi, H1i, H2i, H3i, H4i, H5i = calcIKinematics(H5r[0][3], H5r[1][3], H5r[2][3], a1r, a2r, a3r, a4r, a5r)
+
+simulate(H1i, H2i, H3i, H4i, H5i, "Inverse Kinematics")
+
+#arduino = serial.Serial('COM17', 115200)
+sleep(2)
+
+print(T1i)
+print(T2i)
+print(T3i)
+
+#angles_str = f"{np.rad2deg(T1i)},{np.rad2deg(T2i)},{np.rad2deg(T3i)}\n"
+
+#arduino.write(angles_str.encode())
 simulate(H1i, H2i, H3i, H4i, H5i, "Inverse kinematics simulation")
